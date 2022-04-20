@@ -8,6 +8,5 @@ services:
       - 80:80
   redis:
     image: 'redis:alpine3.10'
-    memory: 128m
     volumes:
       - '/var/app/current/redis-volume:/var/lib/redis/data'
