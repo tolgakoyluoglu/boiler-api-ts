@@ -5,9 +5,10 @@ import './config/redis'
 
 const { NODE_ENV } = process.env
 
-const allowedOrigins: string[] = []
+// env variables for client
+const allowedOrigins: string[] = ['http://0.0.0.0:3000', 'http://0.0.0.0:3003']
 if (NODE_ENV === 'development' || NODE_ENV === 'staging') {
-  allowedOrigins.push('http://0.0.0.0:8080', 'http://localhost:8080')
+  allowedOrigins.push('http://localhost:3001')
 }
 
 app.use((req, res, next) => {

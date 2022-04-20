@@ -78,9 +78,6 @@ class UserController {
    */
   static async signUp(req: Request, res: Response) {
     try {
-      const { me } = req
-      if (!me || !me.id) return res.status(UNAUTHORIZED.code).json(UNAUTHORIZED)
-
       const { username, password } = req.body
       const ERROR = missingRequired({ username, password })
       if (ERROR) return res.status(ERROR.code).json(ERROR)
