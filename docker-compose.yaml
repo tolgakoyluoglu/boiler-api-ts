@@ -1,15 +1,14 @@
 version: '3'
 services:
-  webapp:
-    node-app:
-      image: 'x.dkr.ecr.eu-north-1.amazonaws.com/api-test:IMAGE_TAG'
-      memory: 512m
-      links:
-        - 'redis'
-      ports:
-        - 80:80
-    redis:
-      image: 'redis:alpine3.10'
-      memory: 128m
-      volumes:
-        - '/var/app/current/redis-volume:/var/lib/redis/data'
+  node-app:
+    image: 'x.dkr.ecr.eu-north-1.amazonaws.com/api-test:IMAGE_TAG'
+    memory: 512m
+    links:
+      - 'redis'
+    ports:
+      - 80:80
+  redis:
+    image: 'redis:alpine3.10'
+    memory: 128m
+    volumes:
+      - '/var/app/current/redis-volume:/var/lib/redis/data'
