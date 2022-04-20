@@ -45,13 +45,12 @@ jobs:
           IMAGE_TAG: staging-latest
         run: zip -r deploy.zip *
       - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v9
+        uses: einaregilsson/beanstalk-deploy@v14
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: test-api
           environment_name: Testapi-env
-          version_label: ${{ github.sha }}
-          region: eu-north-1
+          version_label: 'test-api-${{ steps.format-time.outputs.replaced }}'
+          region: us-north-1
           deployment_package: deploy.zip
-          use_existing_version_if_available: true
