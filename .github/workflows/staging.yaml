@@ -52,5 +52,5 @@ jobs:
           application_name: test-api
           environment_name: Testapi-env
           version_label: 'test-api-${{ steps.format-time.outputs.replaced }}'
-          region: us-north-1
+          region: eu-north-1
           deployment_package: deploy.zip
