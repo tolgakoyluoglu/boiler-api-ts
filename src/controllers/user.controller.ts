@@ -87,7 +87,7 @@ class UserController {
 
       const hashedPassword = bcrypt.hashSync(password, salt)
       const user: User = await UserService.create({ username, password: hashedPassword })
-
+      console.log('')
       res.json(user)
     } catch (error) {
       internalServerError(req, res, error)
