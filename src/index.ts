@@ -6,7 +6,7 @@ import './config/redis'
 const { NODE_ENV } = process.env
 
 // env variables for client
-const allowedOrigins: string[] = ['http://0.0.0.0:3000', 'http://0.0.0.0:3003']
+const allowedOrigins: string[] = ['http://0.0.0.0:3000', 'http://localhost:3000']
 if (NODE_ENV === 'development' || NODE_ENV === 'staging') {
   allowedOrigins.push('http://localhost:3001')
 }
