@@ -1,7 +1,7 @@
 version: '3'
 services:
   api:
-    image: '239272608624.dkr.ecr.eu-north-1.amazonaws.com/api:IMAGE_TAG'
+    image: '239272608624.dkr.ecr.eu-north-1.amazonaws.com/api:staging-latest'
     links:
       - 'redis'
     ports:
