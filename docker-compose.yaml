@@ -6,13 +6,15 @@ services:
       - 'redis'
     ports:
       - 80:80
-    resources:
-      limits:
-        memory: 128M
+    deploy:
+      resources:
+        limits:
+          memory: 128M
   redis:
     image: 'redis:alpine3.10'
     volumes:
       - '/var/app/current/redis-volume:/var/lib/redis/data'
-    resources:
-      limits:
-        memory: 128M
+    deploy:
+      resources:
+        limits:
+          memory: 128M
