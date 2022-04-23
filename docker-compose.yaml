@@ -2,11 +2,13 @@ version: '3'
 services:
   api:
     image: '239272608624.dkr.ecr.eu-north-1.amazonaws.com/api:staging-latest'
+    memory: '128'
     links:
       - 'redis'
     ports:
       - 80:80
   redis:
     image: 'redis:alpine3.10'
+    memory: '128'
     volumes:
       - '/var/app/current/redis-volume:/var/lib/redis/data'
