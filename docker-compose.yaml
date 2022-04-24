@@ -1,36 +1,21 @@
+version: '3'
 services:
-  boiler_api:
-    image: boiler_api:latest
-    container_name: boiler_api
-    build: .
-    command: npm run dev
-    restart: unless-stopped
-    volumes:
-      - .:/usr/src/app
-    ports:
-      - '${PORT}:${PORT}'
-    depends_on:
+  api:
+    image: '239272608624.dkr.ecr.eu-north-1.amazonaws.com/api:staging-latest'
+    links:
       - 'redis'
-      - 'postgres'
-    env_file: .env
-    tty: true
-
+    ports:
+      - 80:80
+    deploy:
+      resources:
+        limits:
+          memory: 128M
   redis:
-    container_name: boiler_api_redis
-    image: 'redis:alpine'
-    restart: unless-stopped
-    ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
-
-  postgres:
-    container_name: boiler_api_postgres
-    image: postgres:alpine
-    restart: unless-stopped
+    image: 'redis:alpine3.10'
+    privileged: true
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
-    ports:
-      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
-    environment:
-      POSTGRES_USER: '${POSTGRES_USER}'
-      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-      POSTGRES_DB: '${POSTGRES_DATABASE}'
+      - '/var/app/current/redis-volume:/var/lib/redis/data'
+    deploy:
+      resources:
+        limits:
+          memory: 128M

@@ -78,9 +78,6 @@ class UserController {
    */
   static async signUp(req: Request, res: Response) {
     try {
-      const { me } = req
-      if (!me || !me.id) return res.status(UNAUTHORIZED.code).json(UNAUTHORIZED)
-
       const { username, password } = req.body
       const ERROR = missingRequired({ username, password })
       if (ERROR) return res.status(ERROR.code).json(ERROR)
@@ -90,7 +87,7 @@ class UserController {
 
       const hashedPassword = bcrypt.hashSync(password, salt)
       const user: User = await UserService.create({ username, password: hashedPassword })
-
+      console.log('')
       res.json(user)
     } catch (error) {
       internalServerError(req, res, error)

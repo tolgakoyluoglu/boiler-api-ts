@@ -1,0 +1,34 @@
+services:
+  boiler_api:
+    image: boiler_api:latest
+    container_name: boiler_api
+    build: .
+    command: npm run dev
+    restart: unless-stopped
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - '${PORT}:${PORT}'
+    depends_on:
+      - 'redis'
+      - 'postgres'
+    env_file: .env
+    tty: true
+
+  redis:
+    container_name: boiler_api_redis
+    image: 'redis:alpine'
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+
+  postgres:
+    container_name: boiler_api_postgres
+    image: postgres:alpine
+    restart: unless-stopped
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    environment:
+      POSTGRES_USER: '${POSTGRES_USER}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_DB: '${POSTGRES_DATABASE}'
