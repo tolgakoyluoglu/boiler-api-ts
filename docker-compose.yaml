@@ -12,6 +12,7 @@ services:
           memory: 128M
   redis:
     image: 'redis:alpine3.10'
+    privileged: true
     volumes:
       - '/var/app/current/redis-volume:/var/lib/redis/data'
     deploy:
