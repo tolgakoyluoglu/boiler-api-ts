@@ -1,7 +1,7 @@
 import express from 'express'
 const app = express()
 import './config/postgres'
-import './config/redis'
+// import './config/redis'
 
 const { NODE_ENV } = process.env
 
