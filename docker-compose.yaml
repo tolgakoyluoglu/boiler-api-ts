@@ -1,0 +1,36 @@
+services:
+  bugs-api:
+    image: api:latest
+    container_name: api
+    build: .
+    command: npm run dev
+    restart: unless-stopped
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - '${PORT}:${PORT}'
+    depends_on:
+      - 'redis'
+      - 'postgres'
+    env_file: .env
+    tty: true
+
+  redis:
+    container_name: api_redis
+    image: 'redis:alpine'
+    restart: unless-stopped
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+
+  postgres:
+    container_name: api_postgres
+    image: postgres:alpine
+    restart: unless-stopped
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    environment:
+      POSTGRES_USER: '${POSTGRES_USER}'
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+      POSTGRES_DB: '${POSTGRES_DATABASE}'
