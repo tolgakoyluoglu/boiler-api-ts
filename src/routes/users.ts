@@ -6,5 +6,6 @@ router.post('/sign-in', UserController.signIn)
 router.post('/sign-up', UserController.signUp)
 router.get('/sign-out', AuthService.authenticate, UserController.signOut)
 router.get('/authenticate', AuthService.authenticate, UserController.authenticateRoute)
+router.get('/google/me', UserController.getGoogleUser)
 
 export default router

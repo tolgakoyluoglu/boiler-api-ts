@@ -1,6 +1,5 @@
 import express from 'express'
 const app = express()
-import './config/postgres'
 import './config/redis'
 
 const { NODE_ENV } = process.env
@@ -8,7 +7,7 @@ const { NODE_ENV } = process.env
 // env variables for client
 const allowedOrigins: string[] = ['http://0.0.0.0:3000', 'http://localhost:3000']
 if (NODE_ENV === 'development' || NODE_ENV === 'staging') {
-  allowedOrigins.push('http://localhost:3001')
+  allowedOrigins.push('')
 }
 
 app.use((req, res, next) => {
@@ -22,6 +21,18 @@ app.use((req, res, next) => {
 
   next()
 })
+
+import { sequelize } from './config/sequelize'
+import User from './models/index'
+
+sequelize
+  .sync()
+  .then((result) => {
+    console.log('Init sequelize models.')
+  })
+  .catch((err) => {
+    console.log('Error with sequelize models:', err)
+  })
 
 import bodyParser from 'body-parser'
 app.use(bodyParser.json({ limit: '50mb' }))

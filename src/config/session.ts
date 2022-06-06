@@ -1,7 +1,7 @@
 const redis = require('./redis')
 
 export interface SessionObject {
-  id: string
+  id: string | undefined
 }
 
 async function set(token: string, data: SessionObject): Promise<string> {
