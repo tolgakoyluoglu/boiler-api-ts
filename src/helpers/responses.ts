@@ -116,14 +116,9 @@ const UNAUTHORIZED = {
   message: 'Unauthorized request',
 }
 
-const USERNAME_EXIST = {
+const EMAIL_EXISTS = {
   code: 422,
   message: 'Username already registered.',
-}
-
-const INGREDIENT_EXIST = {
-  code: 422,
-  message: 'Ingredient already created.',
 }
 
 const EMAIL_PASSWORD_NOMATCH = {
@@ -139,7 +134,6 @@ export {
   UNAUTHORIZED,
   NOT_FOUND,
   NO_CONTENT,
-  USERNAME_EXIST,
+  EMAIL_EXISTS,
   EMAIL_PASSWORD_NOMATCH,
-  INGREDIENT_EXIST,
 }

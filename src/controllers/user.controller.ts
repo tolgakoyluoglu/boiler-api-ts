@@ -2,7 +2,7 @@ import {
   internalServerError,
   missingRequired,
   NOT_FOUND,
-  USERNAME_EXIST,
+  EMAIL_EXISTS,
   EMAIL_PASSWORD_NOMATCH,
   UNAUTHORIZED,
 } from '../helpers/responses'
@@ -10,8 +10,10 @@ import { uuidv4 } from '../helpers'
 import session from '../config/session'
 import bcrypt from 'bcryptjs'
 import { Request, Response } from 'express'
-import User from '../types/user'
 import { UserService } from '../services'
+import { google } from 'googleapis'
+import axios from 'axios'
+import { User } from '../models/user.model'
 
 const { NODE_ENV } = process.env
 const salt = bcrypt.genSaltSync(10)
@@ -19,6 +21,9 @@ const cookieConfig = {
   httpOnly: true,
   secure: NODE_ENV !== 'development',
 }
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env
+const REDIRECT_URL = 'http://localhost:4000/users/google/me'
+const oauth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, REDIRECT_URL)
 
 /**
  * @swagger
@@ -26,7 +31,7 @@ const cookieConfig = {
  *   user:
  *     type: object
  *     properties:
- *       username:
+ *       email:
  *         type: string
  *         example: john
  *
@@ -55,12 +60,12 @@ class UserController {
    *           schema:
    *             type: object
    *             properties:
-   *               username:
+   *               email:
    *                 type: string
    *               password:
    *                 type: string
    *             example:
-   *               username: john
+   *               email: john
    *               password: '123456'
    *
    *     responses:
@@ -78,18 +83,15 @@ class UserController {
    */
   static async signUp(req: Request, res: Response) {
     try {
-      const { username, password } = req.body
-      const ERROR = missingRequired({ username, password })
+      const { email, password } = req.body
+      const ERROR = missingRequired({ email, password })
       if (ERROR) return res.status(ERROR.code).json(ERROR)
 
-      const usernameExist: User = await UserService.findOne({ username })
-      if (usernameExist) return res.status(USERNAME_EXIST.code).json(USERNAME_EXIST)
+      const emailExist = await UserService.findOne({ email })
+      if (emailExist) return res.status(EMAIL_EXISTS.code).json(EMAIL_EXISTS)
 
       const hashedPassword = bcrypt.hashSync(password, salt)
-      const user: User = await UserService.create({
-        username,
-        password: hashedPassword,
-      })
+      const user = await UserService.create({ email, password: hashedPassword })
 
       res.json(user)
     } catch (error) {
@@ -112,13 +114,13 @@ class UserController {
    *           schema:
    *             type: object
    *             properties:
-   *               username:
+   *               email:
    *                 type: string
    *               password:
    *                 type: string
    *
    *             example:
-   *               username: john
+   *               email: john
    *               password: '123456'
    *
    *     responses:
@@ -141,11 +143,11 @@ class UserController {
    */
   static async signIn(req: Request, res: Response) {
     try {
-      const { username, password } = req.body
-      const ERROR = missingRequired({ username, password })
+      const { email, password } = req.body
+      const ERROR = missingRequired({ email, password })
       if (ERROR) return res.status(ERROR.code).json(ERROR)
 
-      let user: User = await UserService.findOne({ username })
+      let user = await UserService.findOne({ email })
       if (!user) return res.status(NOT_FOUND.code).json(NOT_FOUND)
 
       const match = await UserService.comparePassword(user.password, password)
@@ -157,7 +159,10 @@ class UserController {
       await session.set(token, sessionData)
       res.cookie('token', token, cookieConfig)
       const sessionTokens = [token].concat(user.sessions)
-      user = await UserService.update({ id: user.id, sessions: sessionTokens })
+      await UserService.update({ id: user.id, sessions: sessionTokens })
+
+      user.password = ''
+      user.sessions = []
 
       res.json(user)
     } catch (error) {
@@ -188,7 +193,7 @@ class UserController {
       if (!req.me) return res.json(null)
       const { id } = req.me
 
-      const user: User = await UserService.findOne({ id })
+      const user = await UserService.findOne({ id })
       if (!user) return res.status(UNAUTHORIZED.code).json(UNAUTHORIZED)
 
       // Don't leak sensitive data
@@ -230,6 +235,59 @@ class UserController {
       res.clearCookie('token')
 
       res.status(204).end()
+    } catch (error) {
+      internalServerError(req, res, error)
+    }
+  }
+
+  /**
+   * @swagger
+   * /users/google/me:
+   *   get:
+   *     tags: [Users]
+   *     summary: Validate Google user with token
+   *
+   *     responses:
+   *       200:
+   *         description: Validate, create user and store cookie session
+   *
+   */
+  static async getGoogleUser(req: Request, res: Response) {
+    try {
+      const code = req.query.code as string
+      const { tokens } = await oauth2Client.getToken(code)
+
+      const googleUser = await axios
+        .get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokens.access_token}`, {
+          headers: {
+            Authorization: `Bearer ${tokens.id_token}`,
+          },
+        })
+        .then((res) => res.data)
+        .catch((error) => {
+          throw new Error(error)
+        })
+
+      let user = await UserService.findOne({ email: googleUser.email })
+      if (!user) {
+        const { googleId, email, firstname, lastname } = googleUser
+        user = await User.create({
+          email,
+          googleId,
+          firstname,
+          lastname,
+        })
+      }
+
+      const sessionData = { id: user.id }
+      const token = uuidv4()
+
+      await session.set(token, sessionData)
+      res.cookie('auth_token', token, cookieConfig)
+      const sessionTokens = [token].concat(user.sessions)
+      await UserService.update({ id: user.id, sessions: sessionTokens })
+
+      res.redirect('http://localhost:3000')
     } catch (error) {
       internalServerError(req, res, error)
     }
