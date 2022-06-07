@@ -1,4 +1,3 @@
-import { query } from '../config/postgres'
 import bcrypt from 'bcryptjs'
 import { User } from '../models/user.model'
 import { Op } from 'sequelize'
