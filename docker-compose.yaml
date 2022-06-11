@@ -1,13 +1,7 @@
 services:
-<<<<<<< HEAD
-  bugs-api:
-    image: api:latest
-    container_name: api
-=======
   boiler_api:
     image: boiler_api:latest
     container_name: boiler_api
->>>>>>> 2e0dfa8 (feat: add sequelize)
     build: .
     command: npm run dev
     restart: unless-stopped
@@ -22,28 +16,16 @@ services:
     tty: true
 
   redis:
-<<<<<<< HEAD
-    container_name: api_redis
-=======
     container_name: boiler_api_redis
->>>>>>> 2e0dfa8 (feat: add sequelize)
     image: 'redis:alpine'
     restart: unless-stopped
     ports:
       - '${REDIS_PORT}:${REDIS_PORT}'
 
   postgres:
-<<<<<<< HEAD
-    container_name: api_postgres
-    image: postgres:alpine
-    restart: unless-stopped
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
-=======
     container_name: boiler_api_postgres
     image: postgres:alpine
     restart: unless-stopped
->>>>>>> 2e0dfa8 (feat: add sequelize)
     ports:
       - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     environment:
