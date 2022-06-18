@@ -1,4 +1,4 @@
-# API-BOILER
+# API-BOILER-TS
 
 Template including Docker, Express, Postgresql, Redis and Typescript
 Authentication with e-mail & Google OAuth and session cookies
